@@ -1,62 +1,155 @@
 let givenbookmark = [];
 
+/* ================= ADD BOOKMARK ================= */
+
 function addBookmark() {
-    var url = document.getElementById('bookmark').value;
-    if (url) {
-        const storebookmark = { id: Date.now(), url };
-        givenbookmark.push(storebookmark);
-        document.getElementById('bookmark').value = '';
-        renderBookmark();
-    }
+  const urlInput = document.getElementById("bookmark");
+
+  const url = urlInput.value.trim();
+
+  if (url === "") {
+    alert("Please enter a valid URL");
+
+    return;
+  }
+
+  const storebookmark = {
+    id: Date.now(),
+
+    url: url,
+  };
+
+  givenbookmark.push(storebookmark);
+
+  urlInput.value = "";
+
+  renderBookmark();
 }
+
+/* ================= RENDER BOOKMARK ================= */
 
 function renderBookmark() {
-    const bookmarkList = document.getElementById('bookmarkList');
-    bookmarkList.innerHTML = '';
-    givenbookmark.forEach(storebookmark => {
-        const bookmarkDiv = document.createElement('div');
-        bookmarkDiv.className = 'storebookmark';
-        bookmarkDiv.innerHTML = `
-            <a href="${storebookmark.url}" target="_blank">${storebookmark.url}</a>
-            <button onclick="editBookmark(${storebookmark.id})">Edit</button>
-            <button onclick="deleteBookmark(${storebookmark.id})">Delete</button>
-        `;
-        bookmarkList.appendChild(bookmarkDiv);
-    });
+  const bookmarkList = document.getElementById("bookmarkList");
+
+  bookmarkList.innerHTML = "";
+
+  givenbookmark.forEach((storebookmark) => {
+    const bookmarkDiv = document.createElement("div");
+
+    bookmarkDiv.className = "bookmark-item";
+
+    let domainName;
+
+    try {
+      domainName = new URL(storebookmark.url).hostname;
+    } catch {
+      domainName = storebookmark.url;
+    }
+
+    bookmarkDiv.innerHTML = `
+
+                    <div class="bookmark-info">
+
+                        <div class="bookmark-icon">
+
+                            <i class='bx bx-globe'></i>
+
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                ${domainName}
+                            </h3>
+
+                            <a href="${storebookmark.url}"
+                                target="_blank">
+
+                                Visit Website →
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="bookmark-actions">
+
+                        <button class="edit-btn"
+                            onclick="editBookmark(${storebookmark.id})">
+
+                            Edit
+
+                        </button>
+
+                        <button class="delete-btn"
+                            onclick="deleteBookmark(${storebookmark.id})">
+
+                            Delete
+
+                        </button>
+
+                    </div>
+
+                `;
+
+    bookmarkList.appendChild(bookmarkDiv);
+  });
 }
+
+/* ================= EDIT BOOKMARK ================= */
 
 function editBookmark(id) {
-    const url = prompt('Enter the new URL:');
-    if (url) {
-        givenbookmark = givenbookmark.map(storebookmark =>
-            storebookmark.id === id ? { ...storebookmark, url } : storebookmark
-        );
-        renderBookmark();
-    }
+  const currentBookmark = givenbookmark.find(
+    (storebookmark) => storebookmark.id === id,
+  );
+
+  const newUrl = prompt("Enter the new URL:", currentBookmark.url);
+
+  if (newUrl && newUrl.trim() !== "") {
+    givenbookmark = givenbookmark.map((storebookmark) =>
+      storebookmark.id === id
+        ? {
+            ...storebookmark,
+            url: newUrl.trim(),
+          }
+        : storebookmark,
+    );
+
+    renderBookmark();
+  }
 }
 
-function deleteBookmark(id) { 
-    const fdel = prompt("Confirm Delete (Yes/No) : ");
-    if(fdel == 'Yes' || fdel=='yes' || fdel == 'YES'){
-    givenbookmark = givenbookmark.filter(storebookmark => storebookmark.id !== id);
+/* ================= DELETE SINGLE ================= */
+
+function deleteBookmark(id) {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this bookmark?",
+  );
+
+  if (confirmDelete) {
+    givenbookmark = givenbookmark.filter(
+      (storebookmark) => storebookmark.id !== id,
+    );
+
     renderBookmark();
-    }
-    else if(fdel == 'NO' || fdel=='no' || fdel == 'No'){
-        givenbookmark = givenbookmark.map(storebookmark =>
-            storebookmark.id === id ? { ...storebookmark, url } : storebookmark
-        );
-        renderBookmark();
-    }
+  }
 }
+
+/* ================= DELETE ALL ================= */
 
 function deleteAllBookmarks() {
-    const fgdel = prompt("Confirm Delete All (Yes/No) : ");
-    if(fgdel == 'Yes' || fgdel=='yes' || fgdel == 'YES'){
-        givenbookmark = [];
+  if (givenbookmark.length === 0) {
+    alert("No bookmarks available");
+
+    return;
+  }
+
+  const confirmDeleteAll = confirm("Delete all bookmarks?");
+
+  if (confirmDeleteAll) {
+    givenbookmark = [];
+
     renderBookmark();
-    }
-    else if(fgdel=='NO' ||fgdel=='No' || fgdel=='no'){
-        givenbookmark = givenbookmark.filter(storebookmark => storebookmark.id !== id);
-    renderBookmark();
-    }
+  }
 }
